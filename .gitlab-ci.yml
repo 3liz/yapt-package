@@ -1,0 +1,37 @@
+stages:
+  - build
+  - deploy
+
+build:
+  image: ${REGISTRY_URL}/factory-ci-runner:rust-noble
+  tags:
+    - factory-plain
+  stage: build
+  script:
+    - cargo build --release
+    - strip target/release/$(make echo-name)
+    - echo "PACKAGE=`make package VERSION=latest`" > build.env
+    - cat build.env
+  cache:
+    - key: cache-$CI_COMMIT_REF_SLUG
+      paths:
+        - target/release
+  artifacts:
+    reports:
+      dotenv: build.env
+    paths:
+      - "*.tar.gz"
+    expire_in: 1 week
+
+
+deploy:
+    image: $REGISTRY_URI/factory-ci-runner:fabric-ci
+    tags:
+      - fabric
+    stage: deploy
+    rules:
+      - if: $RELEASE_BRANCH == "true"
+    dependencies:
+      - build
+    script:
+      - upload_to_packages_server ${PACKAGE} pub/yapt/

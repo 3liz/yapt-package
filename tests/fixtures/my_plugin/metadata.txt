@@ -1,0 +1,29 @@
+
+[general]
+name=My Plugin
+qgisMinimumVersion=3.40
+#description=This is a testing plugin for yapt-pkg tool
+
+about=Downloading would be useless
+version=dev
+
+#author=David Marteau
+#email=david@3liz.com
+
+#changelog=
+
+# Tags are comma separated with spaces allowed
+#tags=foo,bar,baz
+
+# Set from pyproject.toml urls
+#tracker=
+#homepage=
+#repository=
+
+category=plugins
+
+# experimental flag
+experimental=True
+
+# change icon...
+icon=icons/3liz.png

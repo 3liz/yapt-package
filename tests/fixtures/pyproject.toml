@@ -1,0 +1,21 @@
+[project]
+name = "my-plugin"
+description = "This is a testing plugin for yapt"
+authors = [
+    { name = "David Marteau", email = "david@3liz.com" },
+]
+keywords = ["tests", "qgis", "plugin"]
+license = "MyLicense_v2"
+license_files = [
+    "LICENSE",
+]
+version = "10.1.0-beta1"
+
+[project.urls]
+tracker = "https://github.com/3liz/my-plugin/issues"
+homepage = "https://github.com/3liz/my-plugin"
+repository = "https://github.com/3liz/my-plugin"
+
+
+[tool.yapt]
+plugin_source = "my_plugin"
