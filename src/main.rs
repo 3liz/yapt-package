@@ -33,7 +33,8 @@ struct Cli {
 /// Commands
 #[derive(Subcommand)]
 enum Commands {
-    /// Returns the changelog content
+    /// Returns the changelog entry for
+    /// a given version
     Changelog(CmdChangelog),
     /// Create plugin archive
     Package(CmdPackage),
@@ -67,11 +68,13 @@ struct CmdChangelog {
 impl CmdChangelog {
     fn execute(self, rootdir: Option<PathBuf>) -> anyhow::Result<()> {
         let parameters = Parameters::load_parameters(rootdir)?;
-        let version = self.version.unwrap_or_else(|| parameters.version().to_string());
+        let version = self
+            .version
+            .unwrap_or_else(|| parameters.version().to_string());
         if let Some(changelog) = package::read_changelog(&parameters)? {
             if let Some(note) = changelog.note_for(&version) {
                 eprintln!("Found changelog for version {version}");
-                write!(std::io::stdout(), "{}\n", note.text())?;
+                writeln!(std::io::stdout(), "\n{}\n", note.text())?;
             } else {
                 eprintln!("No changelog found for version {version}");
             }

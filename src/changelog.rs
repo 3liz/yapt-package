@@ -114,7 +114,10 @@ impl<'a> VersionNote<'a> {
 
     pub fn match_version(&self, version: &str) -> bool {
         if let Ok((rest, (v, pre, build))) = parser::version_tag(version.trim()) {
-            rest == "" && v == self.version && pre == self.prerelease && build == self.buildmetadata
+            rest.is_empty()
+                && v == self.version
+                && pre == self.prerelease
+                && build == self.buildmetadata
         } else {
             false
         }
