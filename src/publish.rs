@@ -98,6 +98,8 @@ pub fn generate_xml(
 
     let get = |k| s.get(k).unwrap_or_default();
 
+    let download_url = format!("{}/{file_name}", download_url.trim_end_matches('/'));
+
     let mut file = std::fs::File::create("plugins.xml")?;
     write!(
         file,
