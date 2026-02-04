@@ -349,7 +349,7 @@ mod tests {
         .unwrap();
 
         let s = md.section(Some("general")).unwrap();
-        assert_eq!(s.get("version"), Some("0.0.0-alpha"));
+        assert_eq!(s.get("version"), Some("10.1.0-beta1"));
 
         // Check output archive
         assert!(output.exists());

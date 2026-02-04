@@ -98,11 +98,12 @@ pub fn generate_xml(
 
     let get = |k| s.get(k).unwrap_or_default();
 
-    let mut file = std::fs::File::create(archive.with_extension("xml"))?;
+    let mut file = std::fs::File::create("plugins.xml")?;
     write!(
         file,
         concat!(
-            "<pyqgis_plugin name=\"{name}\" version=\"{version}\">\n",
+            "<plugins>\n",
+            "  <pyqgis_plugin name=\"{name}\" version=\"{version}\">\n",
             "    <description><![CDATA[{description}]]></description>\n",
             "    <version>{version}</version>\n",
             "    <qgis_minimum_version>{qgis_minimum_version}</qgis_minimum_version>\n",
@@ -121,7 +122,8 @@ pub fn generate_xml(
             "    <repository>{repository}</repository>\n",
             "    <tags>{tags}</tags>\n",
             "    <server>{server}</server>\n",
-            "</pyqgis_plugin>\n",
+            "  </pyqgis_plugin>\n",
+            "</plugins>\n",
         ),
         file_name = file_name,
         download_url = download_url,
