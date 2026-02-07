@@ -13,6 +13,7 @@ use parameters::Parameters;
 mod changelog;
 mod errors;
 mod git;
+mod notice;
 mod package;
 mod parameters;
 mod publish;
@@ -72,11 +73,11 @@ impl CmdChangelog {
             .version
             .unwrap_or_else(|| parameters.version().to_string());
         if let Some(changelog) = package::read_changelog(&parameters)? {
-            if let Some(note) = changelog.note_for(&version) {
-                eprintln!("Found changelog for version {version}");
+           if let Some(note) = changelog.note_for(&version) {
+                notice::info!("{} {}", "Found changelog for version", version,);
                 writeln!(std::io::stdout(), "\n{}\n", note.text())?;
             } else {
-                eprintln!("No changelog found for version {version}");
+                notice::info!("{} {}", "No changelog found for version", version,);
             }
         }
         Ok(())
@@ -129,16 +130,15 @@ impl CmdPackage {
         )?;
 
         if let Some(kept_files) = kept_files {
-            eprintln!(
-                concat!(
-                    "Intermediate files kept at {}\n",
-                    "Please remember to delete them.",
-                ),
+            notice::info!(
+                "{} {}\n{}",
+                "Intermediate files kept at",
                 kept_files.display(),
+                "Please remember to delete them.",
             );
         }
 
-        println!("Archive created at {}", archive.display());
+        notice::info!("{} {}", "Archive created at", archive.display());
 
         if let Some(ref download_url) = self.xml {
             let username = self.osgeo_username.as_ref().map_or("", |v| v.as_str());
@@ -169,7 +169,7 @@ impl CmdPackage {
             .or_else(|| std::env::var("OSGEO_PASSWORD").ok())
             .ok_or(Error::MissingPassword)?;
 
-        eprintln!("Publishing package...");
+        notice::info!("{}", "Publishing package...");
         publish::publish(
             parameters,
             archive,
@@ -192,15 +192,16 @@ fn init_logger(verbosity: u8) {
     use env_logger::Env;
     use log::LevelFilter;
 
-    let mut builder = env_logger::Builder::from_env(Env::default().default_filter_or("warn"));
-
-    match verbosity {
-        1 => builder.filter_level(LevelFilter::Info),
-        2 => builder.filter_level(LevelFilter::Debug),
-        _ if verbosity > 2 => builder.filter_level(LevelFilter::Trace),
-        _ => &mut builder,
-    }
-    .init();
+    env_logger::Builder::from_env(Env::default())
+        .format_timestamp(None)
+        .format_target(verbosity > 2)
+        .filter_level(match verbosity {
+            1 => LevelFilter::Info,
+            2 => LevelFilter::Debug,
+            _ if verbosity > 2 => LevelFilter::Trace,
+            _ => LevelFilter::Warn,
+        })
+        .init();
 }
 
 // Clap style
