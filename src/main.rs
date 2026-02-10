@@ -20,15 +20,32 @@ mod publish;
 
 #[derive(Parser)]
 #[command(version, author, about, long_about=None)]
-#[command(arg_required_else_help = true)]
+#[command(
+    disable_help_flag = true,
+    disable_help_subcommand = false,
+    disable_version_flag = true
+)]
 #[command(styles = CLAP_STYLE)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
-    #[arg(short, long, action = ArgAction::Count)]
-    verbose: u8,
-    #[arg(long)]
+    /// The root directory for the plugin sources
+    ///
+    /// Usually where the `pyproject.toml` file is located.
+    #[arg(global = true, long, help_heading = "Project options")]
     rootdir: Option<PathBuf>,
+    #[arg(
+        global = true,
+        short,
+        long,
+        action = ArgAction::Count,
+        help_heading = "Global options",
+    )]
+    verbose: u8,
+    #[arg(global = true, short, long, action = ArgAction::HelpShort, help_heading = "Global options")]
+    help: Option<bool>,
+    #[arg(short = 'V', long, action = ArgAction::Version, help_heading = "Global options")]
+    version: Option<bool>,
 }
 
 /// Commands
@@ -73,7 +90,7 @@ impl CmdChangelog {
             .version
             .unwrap_or_else(|| parameters.version().to_string());
         if let Some(changelog) = package::read_changelog(&parameters)? {
-           if let Some(note) = changelog.note_for(&version) {
+            if let Some(note) = changelog.note_for(&version) {
                 notice::info!("{} {}", "Found changelog for version", version,);
                 writeln!(std::io::stdout(), "\n{}\n", note.text())?;
             } else {
@@ -104,10 +121,10 @@ struct CmdPackage {
     #[arg(long)]
     publish: bool,
     /// The Osgeo user name (only with --publish)
-    #[arg(long)]
+    #[arg(long, env = "OSGEO_USERNAME")]
     osgeo_username: Option<String>,
     /// The Osgeo password (only with --publish)
-    #[arg(long)]
+    #[arg(long, env = "OSGEO_PASSWORD")]
     osgeo_password: Option<String>,
     /// Check only server connection without publishing
     #[arg(long)]
@@ -157,17 +174,9 @@ impl CmdPackage {
     }
 
     fn do_publish(&mut self, parameters: &Parameters, archive: &Path) -> anyhow::Result<()> {
-        let username = self
-            .osgeo_username
-            .take()
-            .or_else(|| std::env::var("OSGEO_USERNAME").ok())
-            .ok_or(Error::MissingUserName)?;
+        let username = self.osgeo_username.take().ok_or(Error::MissingUserName)?;
 
-        let password = self
-            .osgeo_password
-            .take()
-            .or_else(|| std::env::var("OSGEO_PASSWORD").ok())
-            .ok_or(Error::MissingPassword)?;
+        let password = self.osgeo_password.take().ok_or(Error::MissingPassword)?;
 
         notice::info!("{}", "Publishing package...");
         publish::publish(

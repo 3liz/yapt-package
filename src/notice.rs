@@ -1,4 +1,4 @@
-use clap::builder::styling::{Style, Color, AnsiColor};
+use clap::builder::styling::{AnsiColor, Color, Style};
 
 pub fn info_style() -> Style {
     Style::new().fg_color(Some(Color::Ansi(AnsiColor::Yellow)))

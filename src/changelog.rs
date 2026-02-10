@@ -10,9 +10,12 @@ mod parser {
         IResult, Parser,
         branch::alt,
         bytes::complete::tag,
-        character::complete::{alphanumeric0, char, digit1, line_ending, space0, space1},
+        character::complete::{
+            alphanumeric0, alphanumeric1, char, digit1, line_ending, space0, space1,
+        },
         combinator::{opt, recognize, value, verify},
         error::ParseError,
+        multi::many0_count,
         sequence::{delimited, preceded, separated_pair},
     };
 
@@ -37,6 +40,14 @@ mod parser {
         alt((version_date_sep('-'), version_date_sep('/'))).parse(i)
     }
 
+    fn build_or_prerelease_identifier(i: &str) -> IResult<&str, &str> {
+        alt((
+            recognize((alphanumeric1, many0_count((tag("."), alphanumeric1)))),
+            alphanumeric0,
+        ))
+        .parse(i)
+    }
+
     /// Parse version as (major.minor.patch, prerelease, buildmetadata))
     pub fn version_tag(i: &str) -> IResult<&str, (&str, &str, &str)> {
         (
@@ -51,8 +62,8 @@ mod parser {
                     recognize((digit1, tag("."), digit1, tag("."), digit1)),
                 ),
             )),
-            preceded(opt(tag("-")), alphanumeric0),
-            preceded(opt(tag("+")), alphanumeric0),
+            preceded(opt(tag("-")), build_or_prerelease_identifier),
+            preceded(opt(tag("+")), build_or_prerelease_identifier),
         )
             .parse(i)
     }
@@ -216,6 +227,20 @@ impl Changelog {
 mod tests {
     use super::*;
     use crate::tests::{fixtures, setup};
+
+    #[test]
+    fn test_semver_version() {
+        let (rest, (ver, release_date)) =
+            parser::version_header(concat!("5.0.0-alpha.1 - 2026-01-01\n",)).unwrap();
+
+        let (version, pre, build) = ver;
+
+        assert_eq!(rest, "");
+        assert_eq!(version, "5.0.0");
+        assert_eq!(pre, "alpha.1");
+        assert_eq!(build, "");
+        assert_eq!(release_date, "2026-01-01");
+    }
 
     #[test]
     fn test_changelog_parse_version_header() {
