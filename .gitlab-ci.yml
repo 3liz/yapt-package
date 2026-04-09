@@ -1,3 +1,6 @@
+variables:
+  PACKAGE_NAME: yapt-package
+
 stages:
   - build
   - deploy
@@ -8,9 +11,10 @@ build:
     - factory-plain
   stage: build
   script:
-    - cargo build --release
+    - maturin build --release --strip
     - strip target/release/$(make echo-name)
     - echo "PACKAGE=`make package VERSION=latest`" > build.env
+    - echo "WHEEL=`ls -1 target/wheels/$PACKAGE_NAME-*.whl`" >> build.env
     - cat build.env
   cache:
     - key: cache-$CI_COMMIT_REF_SLUG
@@ -21,6 +25,7 @@ build:
       dotenv: build.env
     paths:
       - "*.tar.gz"
+      - "target/wheels/$PACKAGE_NAME-*.whl"
     expire_in: 1 week
 
 
@@ -35,3 +40,4 @@ deploy:
       - build
     script:
       - upload_to_packages_server ${PACKAGE} pub/yapt/
+      - upload_to_packages_server ${WHEEL} pub/whl/$PACKAGE_NAME/
