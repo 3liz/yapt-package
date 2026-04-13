@@ -1,3 +1,5 @@
 /target
 *.zip
 my-plugin.*.xml
+
+AGENTS.md
