@@ -36,4 +36,4 @@ deploy:
       - build
     script:
       - upload_to_packages_server ${PACKAGE} pub/yapt/
-      - upload_to_packages_server ${WHEEL} pub/whl/yap-package/
+      - upload_to_packages_server ${WHEEL} pub/whl/yapt-package/
