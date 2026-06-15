@@ -1,6 +1,6 @@
 [package]
 name = "yapt-pkg"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 authors = ["David Marteau <david.marteau@3liz.com>"]
 keywords = ["ci", "qgis", "plugins", "packaging"]

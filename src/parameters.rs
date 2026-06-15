@@ -94,6 +94,7 @@ pub struct ProjectMetadata {
     keywords: Vec<String>,
     urls: ProjectUrls,
     license: String,
+    #[serde(alias = "license-files")]
     license_files: Vec<String>,
 }
 
