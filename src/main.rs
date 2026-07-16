@@ -132,6 +132,9 @@ struct CmdPackage {
     /// Generate a QGIS package XML
     #[arg(long, name = "DOWNLOAD_URL")]
     xml: Option<String>,
+    /// Check that a LICENSE file exists in generated package
+    #[arg(long)]
+    check_license: bool
 }
 
 impl CmdPackage {
@@ -143,6 +146,7 @@ impl CmdPackage {
                 prerelease: self.pre,
                 output_dir: self.output.take(),
                 keep_intermediate_files: self.keep,
+                check_license: self.check_license,
             },
         )?;
 

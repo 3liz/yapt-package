@@ -18,4 +18,6 @@ pub enum Error {
     MissingUserName,
     #[error("Missing password")]
     MissingPassword,
+    #[error("Missing LICENSE file")]
+    MissingLicenseFile,
 }

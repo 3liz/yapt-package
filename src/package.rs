@@ -18,6 +18,8 @@ pub struct Options {
     pub output_dir: Option<PathBuf>,
     /// Keep source of intermediate build
     pub keep_intermediate_files: bool,
+    /// Check the LICENSE file exists in package
+    pub check_license: bool,
 }
 
 // =====================
@@ -55,6 +57,11 @@ pub fn create_archive(
     // Copy extra files
     copy_license_files(parameters, &source)?;
     copy_i8n_file(parameters, &source)?;
+
+    // Ensure a LICENSE file exists
+    if opts.check_license && !source.join("LICENSE").exists() {
+        return Err(anyhow::anyhow!(Error::MissingLicenseFile));
+    }
 
     // Create the final archive
     let archive = make_archive(&metadata.name, &release_version, &source, &opts)?;
